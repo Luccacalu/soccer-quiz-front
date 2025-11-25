@@ -5,16 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de9e0492-ba5b-4a8b-93df-9ee65e54e050" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/assets/images/android-icon-background.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/android-icon-foreground.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/android-icon-monochrome.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/favicon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/partial-react-logo.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/react-logo.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/react-logo@2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/react-logo@3x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/splash-icon.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/babel.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/babel.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
