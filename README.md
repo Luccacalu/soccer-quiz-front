@@ -1,50 +1,91 @@
-# Welcome to your Expo app 👋
+# ⚽ Soccer Quiz App - Front-end
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este é o projeto Front-end desenvolvido para a disciplina **MATA62 - Engenharia de Software I**. Trata-se de uma aplicação móvel de Quiz sobre futebol, onde usuários podem testar seus conhecimentos sobre diferentes times e administradores podem gerenciar o conteúdo.
 
-## Get started
+O projeto foi construído utilizando **React Native (Expo)**, **TypeScript** e **NativeWind** para estilização.
 
-1. Install dependencies
+## 🚀 Tecnologias
 
+- [React Native](https://reactnative.dev/)
+- [Expo](https://expo.dev/)
+- [NativeWind (Tailwind CSS)](https://www.nativewind.dev/)
+- [Expo Router](https://docs.expo.dev/router/introduction/)
+
+## 📋 Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado em sua máquina:
+- [Node.js](https://nodejs.org/) (Versão LTS recomendada)
+- [Git](https://git-scm.com/)
+- Aplicativo **Expo Go** no seu celular (Android ou iOS) ou um emulador configurado.
+
+## 🔧 Passo a Passo para Rodar
+
+1. **Clone o repositório:**
    ```bash
-   npm install
-   ```
+   git clone [https://github.com/seu-usuario/nome-do-repo.git](https://github.com/seu-usuario/nome-do-repo.git)
+   cd nome-do-repo
+````
 
-2. Start the app
+2.  **Instale as dependências:**
 
-   ```bash
-   npx expo start
-   ```
+    ```bash
+    npm install
+    # ou
+    yarn install
+    ```
 
-In the output, you'll find options to open the app in a
+3.  **Configure as Variáveis de Ambiente:**
+    Crie um arquivo `.env` na raiz do projeto (baseado no exemplo abaixo). É **essencial** configurar a URL da API corretamente para que as funcionalidades de **criação de times** e **quizzes específicos de times** funcionem.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+    ```env
+    # .env
+    # Exemplo de URL (Se estiver usando ngrok para expor seu backend local)
+    EXPO_PUBLIC_API_URL=[https://spirituous-kasie.ngrok-free.dev](https://spirituous-kasie.ngrok-free.dev)
+    ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+    > **Nota:** Se a API não estiver rodando ou a URL estiver incorreta, o app ainda funcionará normalmente, com exceção da criação de times e o acesso a quizzes específicos de times.
 
-## Get a fresh project
+4.  **Inicie o projeto:**
 
-When you're ready, run:
+    ```bash
+    npx expo start
+    ```
 
-```bash
-npm run reset-project
+      * Pressione `a` para abrir no Emulador Android.
+      * Pressione `i` para abrir no Simulador iOS.
+      * Ou leia o QR Code com o app **Expo Go** no seu celular.
+
+## 👤 Acesso e Credenciais
+
+O sistema possui dois níveis de acesso com funcionalidades distintas. Utilize as credenciais abaixo para testar:
+
+### 1\. 🛡️ Administrador (Admin)
+
+Tem acesso ao Painel Administrativo para criar novos times e perguntas.
+
+  - **Email:** `admin`
+  - **Senha:** `admin`
+
+### 2\. 👤 Usuário Comum
+
+Tem acesso aos jogos, ranking, compra de moedas e envio de convite.
+
+  - **Email:** Qualquer e-mail válido (ex: `teste@gmail.com`)
+  - **Senha:** `123456`
+
+## 📦 Build (Gerar APK)
+
+Para gerar o APK instalável para Android (Preview):
+
+1.  Certifique-se de ter o `eas-cli` instalado: `npm install -g eas-cli`
+2.  Faça login: `eas login`
+3.  Execute o build:
+    ```bash
+    eas build -p android --profile preview
+    ```
+
+-----
+
+Desenvolvido para MATA62.
+
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
