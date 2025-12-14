@@ -1,23 +1,40 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { api } from '../../services/api';
+
 export default function InviteFriend() {
   const router = useRouter();
-  const [email, setEmail] = useState('maradona@gmail.com');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleInvite = () => {
+  const handleInvite = async () => {
     if (!email.trim()) {
-      Alert.alert("Erro", "Por favor, digite um e-mail.");
+      Alert.alert("Atenção", "Por favor, digite o e-mail do seu amigo.");
       return;
     }
 
-    Alert.alert("Sucesso", `Convite enviado para ${email}!`, [
-      { text: "OK", onPress: () => router.back() }
-    ]);
+    try {
+      setLoading(true);
+
+      await api.post('/auth/invite', { email });
+
+      Alert.alert(
+        "Convite Enviado! 🚀",
+        `Um e-mail foi enviado para ${email} com o link de registro.`,
+        [{ text: "OK", onPress: () => router.back() }]
+      );
+
+    } catch (error) {
+      console.log("Erro ao convidar:", error);
+      Alert.alert("Erro", "Não foi possível enviar o convite. Tente novamente mais tarde.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,7 +54,7 @@ export default function InviteFriend() {
               Convidar amigo
             </Text>
             <Text className="text-gray-200 text-center text-base px-4">
-              Informe o e-mail para o qual deseja enviar um convite.
+              Informe o e-mail para o qual deseja enviar um convite para o jogo.
             </Text>
           </View>
 
@@ -55,15 +72,21 @@ export default function InviteFriend() {
           </View>
 
           <TouchableOpacity
-            className="bg-[#1a1a1a] h-14 rounded-xl items-center justify-center shadow-lg border border-gray-800"
+            className={`bg-[#1a1a1a] h-14 rounded-xl items-center justify-center shadow-lg border border-gray-800 ${loading ? 'opacity-80' : ''}`}
             onPress={handleInvite}
+            disabled={loading}
           >
-            <Text className="text-white font-bold text-lg">Convidar</Text>
+            {loading ? (
+                <ActivityIndicator color="white" />
+            ) : (
+                <Text className="text-white font-bold text-lg">Convidar</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
             className="mt-6 items-center p-2"
             onPress={() => router.back()}
+            disabled={loading}
           >
             <Text className="text-white underline text-base font-medium">Cancelar</Text>
           </TouchableOpacity>

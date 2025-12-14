@@ -1,32 +1,44 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState('pelesilva1000@gmail.com');
+
+  const { signIn } = useAuth();
+
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = () => {
-      // Verifica se é ADMIN
-      if (email === 'admin' && password === 'admin') {
-        // Redireciona para a pasta (admin)
-        router.replace('/(admin)/home-admin');
-        return;
-      }
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
-      // Verifica se é Usuário Comum (Teste)
-      if (password === '123456') {
-         router.replace('/(app)/home');
-      } else {
-         Alert.alert("Erro", "Senha incorreta. (Admin: admin/admin | User: 123456)");
-      }
-    };
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+       Alert.alert("Campos vazios", "Por favor, preencha email e senha.");
+       return;
+    }
+
+    try {
+      setIsSigningIn(true);
+
+      await signIn(email, password);
+
+    } catch (error) {
+       console.log(error);
+       Alert.alert(
+         "Erro no Login",
+         "Não foi possível entrar. Verifique suas credenciais ou a conexão com a API."
+       );
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
 
   return (
     <LinearGradient
@@ -54,13 +66,12 @@ export default function Login() {
             </View>
 
             <View className="mb-5">
-              <Text className="text-gray-500 text-xs ml-1 mb-2">Email</Text>
+              <Text className="text-gray-500 text-xs ml-1 mb-2">Usuário</Text>
               <TextInput
                 className="border border-gray-200 rounded-2xl px-4 py-3.5 text-gray-800 text-base"
-                placeholder="Ex: nome@email.com"
+                placeholder="Ex: fulano02"
                 value={email}
                 onChangeText={setEmail}
-                keyboardType="email-address"
                 autoCapitalize="none"
               />
             </View>
@@ -92,16 +103,21 @@ export default function Login() {
                    <Text className="text-gray-500 text-sm">Lembre-me</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
                     <Text className="text-blue-600 font-bold text-sm">Esqueceu a sua senha?</Text>
                 </TouchableOpacity>
             </View>
 
             <TouchableOpacity
-              className="bg-[#1a1a1a] py-4 rounded-2xl items-center justify-center shadow-md mb-6"
+              className={`bg-[#1a1a1a] py-4 rounded-2xl items-center justify-center shadow-md mb-6 ${isSigningIn ? 'opacity-80' : ''}`}
               onPress={handleLogin}
+              disabled={isSigningIn}
             >
-              <Text className="text-white font-bold text-lg">Log In</Text>
+              {isSigningIn ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className="text-white font-bold text-lg">Log In</Text>
+              )}
             </TouchableOpacity>
 
             <View className="flex-row items-center mb-6 px-2">
