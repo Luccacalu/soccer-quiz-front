@@ -4,11 +4,12 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { ScreenWrapper } from '../../components/ScreenWrapper';
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 interface Answer {
     id: number;
     text: string;
-    is_correct: boolean;
+    // is_correct: boolean;
 }
 
 interface Question {
@@ -20,81 +21,82 @@ interface Question {
 export default function QuizGame() {
   const router = useRouter();
   const { teamId } = useLocalSearchParams();
+  const { user } = useAuth();
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const [sessionId, setSessionId] = useState<number | null>(null);
-  const [startTime, setStartTime] = useState<number>(0);
+  const [quizId, setQuizId] = useState<number | null>(null);
 
   const [timeLeft, setTimeLeft] = useState(15);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [blockInteraction, setBlockInteraction] = useState(false);
 
   useEffect(() => {
-    async function fetchGame() {
+    async function initGame() {
+        if (!user || !teamId) return;
+
         try {
-            if (!teamId) return;
-
             const gameRes = await api.get(`/game/play/team/${teamId}`);
+            if (!gameRes.data || gameRes.data.length === 0) {
+                Alert.alert("Ops", "Sem perguntas para este time.");
+                return router.back();
+            }
+            setQuestions(gameRes.data);
 
-            if (gameRes.data && gameRes.data.length > 0) {
-                setQuestions(gameRes.data);
+            const quizRes = await api.get(`/quiz/team/${teamId}`);
+            const qId = quizRes.data[0]?.id || quizRes.data?.id;
+            setQuizId(qId);
 
-                const quizRes = await api.get(`/quiz/team/${teamId}`);
-                const quizId = quizRes.data[0]?.id || quizRes.data?.id;
+            if (qId) {
+                const startRes = await api.post(`/start_quiz/${user.id}/${qId}`);
 
-                if (quizId) {
-                    const sessionRes = await api.post('/session', {
-                        quiz_id: quizId
-                    });
-
-                    setSessionId(sessionRes.data.id);
-                    setStartTime(Date.now());
-                    console.log("Sessão iniciada ID:", sessionRes.data.id);
-                }
+                setSessionId(startRes.data.session_id);
+                console.log("Sessão iniciada:", startRes.data.session_id);
 
                 setIsTimerRunning(true);
-            } else {
-                Alert.alert("Ops", "Este time ainda não tem perguntas cadastradas.", [
-                    { text: "Voltar", onPress: () => router.back() }
-                ]);
             }
+
         } catch (error) {
             console.error(error);
-            Alert.alert("Erro", "Falha ao carregar o jogo. Verifique sua conexão.");
+            Alert.alert("Erro", "Falha ao iniciar o quiz.");
             router.back();
         } finally {
             setLoading(false);
         }
     }
-    fetchGame();
-  }, [teamId]);
+    initGame();
+  }, [teamId, user]);
 
   useEffect(() => {
     if (!isTimerRunning) return;
-
     if (timeLeft === 0) {
         handleAnswer(null);
         return;
     }
-
     const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft, isTimerRunning]);
 
-  const handleAnswer = (selectedAnswer: Answer | null) => {
+  const handleAnswer = async (selectedAnswer: Answer | null) => {
     if (blockInteraction) return;
     setBlockInteraction(true);
     setIsTimerRunning(false);
 
-    let isCorrect = false;
-
-    if (selectedAnswer?.is_correct) {
-        setScore(prev => prev + 1);
-        isCorrect = true;
+    try {
+        if (selectedAnswer && sessionId) {
+            await api.post(`/submit_answer/${questions[currentIndex].id}`, null, {
+                params: {
+                    session_id: sessionId,
+                    answer: selectedAnswer.id
+                }
+            });
+            console.log("Resposta enviada:", selectedAnswer.id);
+        }
+    } catch (error) {
+        console.log("Erro ao enviar resposta (pode ser timeout ou erro de rede)", error);
     }
 
     setTimeout(() => {
@@ -104,22 +106,34 @@ export default function QuizGame() {
             setIsTimerRunning(true);
             setBlockInteraction(false);
         } else {
-            const finalScore = isCorrect ? score + 1 : score;
-            finishQuiz(finalScore);
+            finishQuiz();
         }
     }, 500);
   };
 
-  const finishQuiz = (finalScore: number) => {
-    router.replace({
-        pathname: '/quiz/result',
-        params: {
-            score: finalScore,
-            total: questions.length,
-            sessionId: sessionId,
-            startTime: startTime
-        }
-    });
+  const finishQuiz = async () => {
+    if (!sessionId) return;
+
+    try {
+        setLoading(true);
+
+        const response = await api.post(`/finish_quiz/${sessionId}`);
+        const finalScore = response.data;
+
+        router.replace({
+            pathname: '/quiz/result',
+            params: {
+                score: finalScore,
+                total: questions.length,
+                quizId: quizId
+            }
+        });
+
+    } catch (error) {
+        console.error("Erro ao finalizar:", error);
+        Alert.alert("Erro", "Não foi possível calcular sua nota.");
+        router.replace('/(app)/home');
+    }
   };
 
   if (loading) {
@@ -127,7 +141,7 @@ export default function QuizGame() {
           <ScreenWrapper>
               <View className="flex-1 justify-center items-center">
                 <ActivityIndicator size="large" color="white" />
-                <Text className="text-white mt-4 font-bold">Preparando o campo...</Text>
+                <Text className="text-white mt-4 font-bold">Carregando...</Text>
               </View>
           </ScreenWrapper>
       );
@@ -147,15 +161,6 @@ export default function QuizGame() {
         </View>
 
         <View className="mb-8">
-            <View className="flex-row justify-between items-center mb-2">
-                <Text className="text-gray-300 text-xs font-bold uppercase tracking-widest">Tempo Restante</Text>
-                <View className={`flex-row items-center px-3 py-1 rounded-full ${timeLeft <= 5 ? 'bg-red-500/20' : 'bg-white/20'}`}>
-                    <Feather name="clock" size={14} color="white" style={{ marginRight: 6 }} />
-                    <Text className={`font-bold ${timeLeft <= 5 ? 'text-red-400' : 'text-white'}`}>
-                        {timeLeft}s
-                    </Text>
-                </View>
-            </View>
             <View className="h-2 bg-white/10 rounded-full overflow-hidden">
                 <View
                     className={`h-full rounded-full ${timeLeft <= 5 ? 'bg-red-500' : 'bg-yellow-400'}`}
