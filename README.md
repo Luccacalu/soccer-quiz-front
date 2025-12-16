@@ -46,19 +46,14 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
     Crie um arquivo `.env` na raiz do projeto (baseado no exemplo
     abaixo).\
     É **essencial** configurar a URL da API corretamente para que as
-    funcionalidades de **criação de times** e **quizzes específicos de
-    times** funcionem.
+    funcionalidades  funcionem.
 
     ``` env
     # .env
     # Exemplo de URL (se estiver usando ngrok para expor seu backend local)
     EXPO_PUBLIC_API_URL=https://spirituous-kasie.ngrok-free.dev
     ```
-
-    > **Nota:** Se a API não estiver rodando ou a URL estiver incorreta,
-    > o app ainda funcionará normalmente, com exceção da criação de
-    > times e o acesso a quizzes específicos de times.
-
+    
 4.  **Inicie o projeto:**
 
     ``` bash
@@ -68,25 +63,6 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
     -   Pressione `a` para abrir no Emulador Android\
     -   Pressione `i` para abrir no Simulador iOS\
     -   Ou leia o QR Code com o app **Expo Go** no seu celular
-
-## 👤 Acesso e Credenciais
-
-O sistema possui dois níveis de acesso com funcionalidades distintas.
-Utilize as credenciais abaixo para testar:
-
-### 1. 🛡️ Administrador (Admin)
-
-Tem acesso ao Painel Administrativo para criar novos times e perguntas.
-
--   **Email:** `admin`
--   **Senha:** `admin`
-
-### 2. 👤 Usuário Comum
-
-Tem acesso aos jogos, ranking, compra de moedas e envio de convite.
-
--   **Email:** Qualquer e-mail válido (ex: `teste@gmail.com`)
--   **Senha:** `123456`
 
 ## 📦 Build (Gerar APK)
 
